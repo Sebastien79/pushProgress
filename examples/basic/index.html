@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+	<title>Server-Sent Events with libSSE</title>
+	<link rel="stylesheet" type="text/css" href="/bower_components/progressjs/src/progressjs.css">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/bower_components/progressjs/minified/progress.min.js"></script>
+
+</head>
+
+<body>
+
+<form style="width: 500px; margin: auto;" id="form1" action="" method="post">
+    <input type="submit" id="pushProgressBtn"></div>
+    <div id="pushProgress"></div>
+</form>
+
+<script>
+
+$(function(){
+    var source = new EventSource('./data.php');
+    var pushProgress = $('#pushProgress');
+    var PROGRESS_TICK = 90 / 100;
+    var progress = 0;
+
+    $(this).on('click', 'input[type="submit"], button[type="submit"]', function(e){
+        e.preventDefault();
+        $(this).prop('disabled',true);
+
+        source.addEventListener('time',function(e){
+            var data = jQuery.parseJSON(e.data);
+            progress = progress + ((data.url===true)?PROGRESS_TICK:(PROGRESS_TICK*20));
+            //console.log(data.url);
+            progressJs('#pushProgress').set(progress+'%');
+
+            if(progress > 10 && $('.progressjs-percent').css('display') == 'none'){
+                $('.progressjs-percent').css('display','block');
+                $('.progressjs-percent').css('float','right');
+                $('.progressjs-percent').css('padding-right','10px');
+                $('.progressjs-percent').css('padding-top','3px');
+                $('.progressjs-percent').css('color','#ffffff');
+                $('.progressjs-percent').css('font-weight','bold');
+            }
+
+            if(progress >= 100){
+                //console.log(data.url);
+                progressJs('#pushProgress').end();
+                window.location.href = (data.url !== true)?data.url:'';
+            }
+        },false);
+
+        if(pushProgress.length > 0){
+            progressJs('#pushProgress').setOptions({ 'theme': 'black', 'overlayMode': true });
+            progressJs('#pushProgress').start();
+            progressJs('#pushProgress').set('0%');
+            //Set progresss bar height;
+            $('.progressjs-theme-blue .progressjs-inner').height(22);
+        }
+
+    });
+});
+
+</script>
+</body>
+</html>
