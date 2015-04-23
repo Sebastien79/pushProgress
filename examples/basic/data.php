@@ -19,7 +19,8 @@ class Progress extends SSEEvent {
 }
 
 $sse = new SSE();
-$sse->exec_limit=10;
+$sse->exec_limit=0;
+$sse->sleep_time=0.666;
 $sse->addEventListener('time',new Progress());
 $sse->start();
 ?>
